@@ -9,10 +9,18 @@ import (
 	"os"
 
 	"warehouse-client/models"
+
+	"github.com/joho/godotenv"
 )
 
-const apiURL = "http://localhost:3000"
-var token, role string
+var token, role, apiURL string
+func init(){
+	err := godotenv.Load(".env")
+	if err != nil {
+		panic("error load .env")
+	}
+	apiURL = os.Getenv("apiURL")
+}
 
 // Fungsi login
 func login(username, password string) error {
