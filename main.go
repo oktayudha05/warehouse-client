@@ -234,24 +234,62 @@ func dashboard() {
 
 	switch pilihan {
 	case 1:
-		fmt.Println("Login sebagai (karyawan/pengunjung):")
-		fmt.Scanln(&role)
-		if role != "karyawan" && role != "pengunjung" {
-			fmt.Println("Role tidak valid.")
-			return
+		// fmt.Println("Login sebagai (karyawan/pengunjung):")
+		// fmt.Scanln(&role)
+		// if role != "karyawan" && role != "pengunjung" {
+		// 	fmt.Println("Role tidak valid.")
+		// 	return
+		// }
+		// var username, password string
+		// fmt.Print("Username: ")
+		// fmt.Scanln(&username)
+		// fmt.Print("Password: ")
+		// fmt.Scanln(&password)
+		// err := login(username, password)
+		// if err != nil {
+		// 	fmt.Println("Login gagal:", err)
+		// 	return
+		// }
+		// fmt.Println("Login berhasil!")
+		// showMenu()
+
+		fmt.Println("1. Login Karyawan")
+		fmt.Println("2. Login Pengunjung")
+		fmt.Print("Pilih opsi: ")
+		var pilihanLog int
+		fmt.Scanln(&pilihanLog)
+		switch pilihanLog {
+		case 1:
+			role = "karyawan"
+			var username, password string
+			fmt.Print("Username: ")
+			fmt.Scanln(&username)
+			fmt.Print("Password: ")
+			fmt.Scanln(&password)
+			err := login(username, password)
+			if err != nil {
+				fmt.Println("login gagal: ", err)
+				return
+			}
+			fmt.Printf("login karyawan sebagai %s berhasil\n", username)
+			showMenu()
+		
+		case 2:
+			role = "pengunjung"
+			var username, password string
+			fmt.Print("Username: ")
+			fmt.Scanln(&username)
+			fmt.Print("Password: ")
+			fmt.Scanln(&password)
+			err := login(username, password)
+			if err != nil {
+				fmt.Println("login gagal: ", err)
+				return
+			}
+			fmt.Printf("login pengunjung sebagai %s berhasil\n", username)
+			showMenu()
 		}
-		var username, password string
-		fmt.Print("Username: ")
-		fmt.Scanln(&username)
-		fmt.Print("Password: ")
-		fmt.Scanln(&password)
-		err := login(username, password)
-		if err != nil {
-			fmt.Println("Login gagal:", err)
-			return
-		}
-		fmt.Println("Login berhasil!")
-		showMenu()
+
 	case 2:
 		fmt.Println("1. Register Karyawan")
 		fmt.Println("2. Register Pengunjung")
