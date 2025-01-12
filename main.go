@@ -227,34 +227,16 @@ func dashboard() {
 	fmt.Println("\nSelamat datang di Aplikasi Warehouse!")
 	fmt.Println("1. Login")
 	fmt.Println("2. Register")
-	fmt.Println("3. Exit")
+	fmt.Println("0. Exit")
 	fmt.Print("Pilih opsi: ")
 	var pilihan int
 	fmt.Scanln(&pilihan)
 
 	switch pilihan {
 	case 1:
-		// fmt.Println("Login sebagai (karyawan/pengunjung):")
-		// fmt.Scanln(&role)
-		// if role != "karyawan" && role != "pengunjung" {
-		// 	fmt.Println("Role tidak valid.")
-		// 	return
-		// }
-		// var username, password string
-		// fmt.Print("Username: ")
-		// fmt.Scanln(&username)
-		// fmt.Print("Password: ")
-		// fmt.Scanln(&password)
-		// err := login(username, password)
-		// if err != nil {
-		// 	fmt.Println("Login gagal:", err)
-		// 	return
-		// }
-		// fmt.Println("Login berhasil!")
-		// showMenu()
-
 		fmt.Println("1. Login Karyawan")
 		fmt.Println("2. Login Pengunjung")
+		fmt.Println("0. Kembali")
 		fmt.Print("Pilih opsi: ")
 		var pilihanLog int
 		fmt.Scanln(&pilihanLog)
@@ -288,11 +270,16 @@ func dashboard() {
 			}
 			fmt.Printf("login pengunjung sebagai %s berhasil\n", username)
 			showMenu()
+
+		case 0:
+			fmt.Println("Kembali ke menu utama")
+			return
 		}
 
 	case 2:
 		fmt.Println("1. Register Karyawan")
 		fmt.Println("2. Register Pengunjung")
+		fmt.Println("0. Kembali")
 		fmt.Print("Pilih opsi: ")
 		var pilihanReg int
 		fmt.Scanln(&pilihanReg)
@@ -326,8 +313,12 @@ func dashboard() {
 				return
 			}
 			fmt.Println("Register berhasil!")
+
+		case 0:
+			fmt.Println("Kembali ke menu utama")
+			return
 		}
-	case 3:
+	case 0:
 		fmt.Println("Terima kasih!")
 		os.Exit(0)
 	default:
