@@ -1,14 +1,11 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"os"
 
-	"warehouse-client/models"
+	"warehouse-client/controller"
+	"warehouse-client/lib"
 
 	"github.com/joho/godotenv"
 )
@@ -22,158 +19,6 @@ func init(){
 	apiURL = os.Getenv("apiURL")
 }
 
-// Fungsi login
-func login(username, password string) error {
-	loginReq := models.LoginRequest{Username: username, Password: password}
-	reqBody, _ := json.Marshal(loginReq)
-	url := fmt.Sprintf("%s/%s/login", apiURL, role)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("login failed: %s", resp.Status)
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	var loginRes models.LoginRes
-	err = json.Unmarshal(body, &loginRes)
-	if err != nil {
-		return err
-	}
-
-	token = loginRes.Token
-	return nil
-}
-
-// Fungsi register
-func registerKaryawan(username, password, nama, jabatan string) error {
-	registerReq := models.RegisterKaryawanRequest{Username: username, Password: password, Nama: nama, Jabatan: jabatan}
-	reqBody, _ := json.Marshal(registerReq)
-	url := fmt.Sprintf("%s/karyawan/register", apiURL)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("register failed: %s", resp.Status)
-	}
-	return nil
-}
-
-func registerPengunjung(username, password string) error {
-	registerReq := models.RegisterPengunjungRequest{Username: username, Password: password}
-	reqBody, _ := json.Marshal(registerReq)
-	url := fmt.Sprintf("%s/pengunjung/register", apiURL)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("register failed: %s", resp.Status)
-	}
-	return nil
-}
-
-// Fungsi untuk tambah barang
-func tambahBarang() error {
-	var nama string
-	var jumlah int
-	fmt.Println("Masukkan nama barang:")
-	fmt.Scanln(&nama)
-	fmt.Println("Masukkan jumlah barang:")
-	fmt.Scanln(&jumlah)
-
-	barangReq := models.BarangRequest{Nama: nama, Jumlah: jumlah}
-	reqBody, _ := json.Marshal(barangReq)
-	req, err := http.NewRequest("POST", apiURL+"/barang", bytes.NewBuffer(reqBody))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Authorization", token)
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to add barang: %s", resp.Status)
-	}
-	fmt.Println("Barang berhasil ditambahkan!")
-	return nil
-}
-
-// Fungsi untuk lihat barang
-func lihatBarang() error {
-	req, err := http.NewRequest("GET", apiURL+"/barang", nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Authorization", token)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to get barang: %s", resp.Status)
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	var tampilBarang []models.TampilBarang
-	err = json.Unmarshal(body, &tampilBarang)
-	if err != nil {
-		return err
-	}
-	fmt.Println("Barang yang ada:")
-	for _, barang := range tampilBarang {
-		fmt.Printf("Nama: %s, Jumlah: %d, Harga: %d\n", barang.Nama, barang.Jumlah, barang.Harga)
-	}
-	return nil
-}
-
-// Menampilkan menu setelah login
 func showMenu() {
 	if role == "karyawan" {
 		var pilihan int
@@ -185,12 +30,12 @@ func showMenu() {
 
 		switch pilihan {
 		case 1:
-			err := lihatBarang()
+			err := lib.LihatBarang(apiURL, token)
 			if err != nil {
 				fmt.Println("Error:", err)
 			}
 		case 2:
-			err := tambahBarang()
+			err := lib.TambahBarang(apiURL, token)
 			if err != nil {
 				fmt.Println("Error:", err)
 			}
@@ -207,7 +52,7 @@ func showMenu() {
 
 		switch pilihan {
 		case 1:
-			err := lihatBarang()
+			err := lib.LihatBarang(apiURL, token)
 			if err != nil {
 				fmt.Println("Error:", err)
 			}
@@ -222,7 +67,6 @@ func showMenu() {
 	}
 }
 
-// Fungsi dashboard
 func dashboard() {
 	fmt.Println("\nSelamat datang di Aplikasi Warehouse!")
 	fmt.Println("1. Login")
@@ -248,7 +92,7 @@ func dashboard() {
 			fmt.Scanln(&username)
 			fmt.Print("Password: ")
 			fmt.Scanln(&password)
-			err := login(username, password)
+			err := controller.Login(username, password, apiURL, role, &token)
 			if err != nil {
 				fmt.Println("login gagal: ", err)
 				return
@@ -263,7 +107,7 @@ func dashboard() {
 			fmt.Scanln(&username)
 			fmt.Print("Password: ")
 			fmt.Scanln(&password)
-			err := login(username, password)
+			err := controller.Login(username, password, apiURL, role, &token)
 			if err != nil {
 				fmt.Println("login gagal: ", err)
 				return
@@ -295,7 +139,7 @@ func dashboard() {
 			fmt.Scanln(&nama)
 			fmt.Print("Jabatan: ")
 			fmt.Scanln(&jabatan)
-			err := registerKaryawan(username, password, nama, jabatan)
+			err := controller.RegisterKaryawan(username, password, nama, jabatan, apiURL)
 			if err != nil {
 				fmt.Println("Register gagal:", err)
 				return
@@ -307,7 +151,7 @@ func dashboard() {
 			fmt.Scanln(&username)
 			fmt.Print("Password: ")
 			fmt.Scanln(&password)
-			err := registerPengunjung(username, password)
+			err := controller.RegisterPengunjung(username, password, apiURL)
 			if err != nil {
 				fmt.Println("Register gagal:", err)
 				return
